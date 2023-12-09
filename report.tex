@@ -1,0 +1,401 @@
+\documentclass{article}
+	\usepackage{pdfpages}
+	\usepackage[text={18cm,21cm},centering]{geometry}
+	\usepackage[utf8]{inputenc} 
+	\usepackage{amsmath,amssymb,amsfonts,latexsym,cancel} 
+	\usepackage[T1]{fontenc} % Comandos personales - especiales 
+	\usepackage{titlesec} 
+	\usepackage{graphicx}
+	\usepackage{listings}
+    \usepackage{hyperref}
+	\newcommand{\sen}{\mathop{\rm sen}\nolimits} %seno 
+	\newcommand{\arcsen}{\mathop{\rm arcsen}\nolimits} 
+	\newcommand{\arcsec}{\mathop{\rm arcsec}\nolimits} 
+	\newcommand{\R}{\mathbb{R}} \newcommand{\N}{\mathbb{N}} 
+	\newcommand{\Z}{\mathbb{Z}} \def\max{\mathop{\mbox{\rm máx}}} % máximo \def\min{\mathop{\mbox{\rm mín}}} % mínimo 
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	{\bfseries\LARGE Proyecto de Optimización \par}
+	\vspace{1cm}
+	\vspace{1cm}
+	{\LARGE Integrantes: \par}
+	{\Large Raudel Alejandro Gómez Molina C-311 \par}
+	{\Large Juan Carlos Espinosa Delgado C-311 \par}
+	{\Large Alex Sierra Alcalá C-311 \par}
+	\vfill
+	{\scshape\Large Facultad Matemática y Computación, Universidad de La Habana \par}
+\end{titlepage}
+
+\section{Algoritmos estudiados}
+
+\subsection{Broyden-Fletcher-Goldfarb-Shanno (BFGS)}
+
+Los métodos quasi-Newton son técnicas utilizadas para encontrar ceros
+o máximos y mínimos locales de funciones, como una alternativa al
+método de Newton. Estos métodos pueden ser útiles si el Jacobiano o
+el Hessiano no están disponibles o si son demasiado costosos para
+calcular en cada iteración. La idea detrás de estos métodos es hacer
+que un algoritmo de optimización con solo un valor de función y
+gradiente converja más rápidamente que el descenso más pronunciado.
+Es decir, un método quasi-Newton no requiere un medio para evaluar la
+matriz Hessiana en la iteración actual, como en un método de Newton.
+
+Los métodos quasi-Newton funcionan a través de un proceso iterativo
+que comienza con una suposición para el valor inicial y la
+inicialización de la matriz H, que es una aproximación de la
+Hessiana. En muchos casos esta matriz se inicializa como la matriz
+identidad. Luego se calcula el gradiente de la función en el punto actual
+y se usa la fórmula de actualización quasi-Newton para calcular el
+siguiente punto. Se repiten estos pasos hasta que el algoritmo
+converja, lo cual se suele determinar cuando el cambio en x o en el
+valor de la función es menor que un cierto umbral.
+
+Los métodos quasi-Newton son métodos iterativos y pueden no converger
+a una solución si la suposición inicial está muy lejos del mínimo de
+la función, o si la función tiene múltiples mínimos locales. Por
+tanto, es posible que se necesite probar con diferentes suposiciones
+iniciales o utilizar algún método para escapar de los mínimos locales.
+
+El algoritmo Broyden-Fletcher-Goldfarb-Shanno es uno de los métodos
+quasi-Newton más populares y su fórmula de actualización es:
+
+$$x_{k+1} = x_{k} - H_{k} * \nabla f(x_{k})$$
+
+Este método determina la dirección de descenso condicionando el
+gradiente con información de curvatura. BFGS mejora gradualmente una
+aproximación a la matriz Hessiana de la función de pérdida, obtenida
+solo a partir de evaluaciones de gradientes (o evaluaciones de
+gradientes aproximadas) a través de un método secante generalizado.
+Dado que las actualizaciones de la matriz de curvatura BFGS no
+requieren inversión de matriz, su complejidad computacional es solo
+$O(n^2)$, en comparación con $O(n^3)$ en el método de Newton.
+
+El método de BFGS es usado para resolver problemas optimización sobre
+funciones continuas y diferenciables sin
+restricciones, pero puede ser extendido para abordar problemas con
+restricciones. Cuando se trata de optimización con restricciones, una
+variante común del método de BFGS es el algoritmo SQP (Sequential
+Quadratic Programming), que combina el método de Newton para la
+optimización sin restricciones con técnicas de programación
+cuadrática para manejar restricciones. Se utiliza el método de BFGS
+para encontrar la dirección de búsqueda en el espacio sin
+restricciones, luego las restricciones se manejan mediante técnicas
+de programación cuadrática para encontrar una dirección de búsqueda
+que cumpla con las restricciones y se repite iterativamente hasta
+que se cumplan ciertos criterios de convergencia. Aunque el tiempo de
+ejecución puede aumentar para dimensiones más altas, el BFGS sigue
+siendo aplicable y puede brindar soluciones aceptables en muchos
+casos. Además, es más estable que algunos algoritmos en dimensiones
+más altas.
+
+\subsection{Evolución Diferencial}
+
+El algoritmo de Evolución Diferencial es un método de optimización
+global que se utiliza para encontrar la solución óptima en problemas
+de optimización complejos. Fue desarrollado por Storn y Price en
+1997. Este algoritmo funciona a través de un
+proceso iterativo que involucra una población de soluciones
+candidatas. Cada solución en la población se evalúa utilizando una
+función de aptitud. Luego, el algoritmo genera nuevas soluciones
+candidatas mediante la combinación de soluciones existentes en la
+población. Este proceso se repite hasta que se cumple un criterio de
+terminación, como alcanzar un número máximo de iteraciones o
+encontrar una solución que satisfaga un nivel de aptitud deseado.
+
+El Algoritmo de Evolución Diferencial es particularmente útil para
+problemas de optimización que son:
+
+\begin{enumerate}
+	\item No lineales: No hace suposiciones sobre la linealidad de
+	      la función objetivo o las restricciones, lo que lo hace adecuado
+	      para una amplia gama de problemas.
+	\item Multimodales: Es capaz de explorar múltiples modos en el
+	      espacio de búsqueda, lo que lo hace eficaz para encontrar
+	      soluciones globales en problemas con múltiples óptimos locales.
+	\item De alta dimensión: Puede manejar problemas con un gran
+	      número de variables de decisión, lo que es útil para problemas
+	      de optimización de alta dimensión.
+\end{enumerate}
+
+En el caso de los algoritmos evolutivos como la Evolución
+Diferencial, se genera una población inicial de soluciones de forma
+aleatoria dentro de los límites definidos para las variables de
+decisión. Por lo tanto, es probable que haya soluciones iniciales
+cerca de la solución óptima. Aun así, si la dimensión del problema
+es alta, el espacio de búsqueda es tan grande que incluso una
+población inicial grande puede no estar cerca de la solución óptima.
+A medida que aumenta el número de dimensiones, el volumen del
+espacio de búsqueda crece exponencialmente, lo que hace que el
+problema sea más difícil de resolver. A esto se le conoce como la
+“maldición de la dimensionalidad”.
+
+\section{Problemas a resolver}
+
+En general, para la resolución de los problemas, probamos con los
+diferentes algoritmos estudiados para analizar cuál de ellos arrojaba
+los mejores resultados. Para cada problema, se realizó un análisis
+tomando en cuenta los siguientes aspectos:
+
+\begin{enumerate}
+	\item Tiempo de ejecución.
+	\item Número de iteraciones.
+	\item Valor de la función objetivo.
+\end{enumerate}
+
+\subsection{Problema 1: Deb 3 Function}
+
+$$
+	f(x) = -\frac{1}{D} \sum_{i=1}^{D} \sin^6(5\pi (x_i^{3/4} - 0.05))
+$$
+$$
+	-1 \leq x_i \leq 1
+$$
+
+En un primer acercamiento analítico, podemos observar que para
+minimizar la función objetivo, y debido a que es separable, basta con
+maximizar cada término $\sin^6(5\pi (x_i^{3/4} - 0.05))$ por separado,
+los cuales sabemos que están acotados superiormente por 1 y
+alcanzan su valor máximo para $x_i = (\frac{3}{20})^{\frac{4}{3}}$, el
+cual cumple con las restricciones del problema. Por lo tanto, podemos
+afirmar que $f(x) \geq -1$. Veamos cuáles de los algoritmos se acerca
+más a estos resultados.
+
+\subsubsection{Broyden-Fletcher-Goldfarb-Shanno}
+
+Para la inicialización de este algoritmo tomamos un vector
+aleatorio de tamaño $D$ con valores entre -1 y 1. Los resultados
+obtenidos fueron los siguientes:
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		\textbf{Dimensión} & \textbf{Tiempo en segundos} & \textbf{Iteraciones} & \textbf{Valor}      \\
+		\hline
+		5                  & 0.019681453704833984        & 20                   & -0.9999999999998934 \\
+		\hline
+		10                 & 0.029370784759521484        & 24                   & -0.9999999999996423 \\
+		\hline
+		100                & 0.8685765266418457          & 106                  & -0.9400000010427071 \\
+		\hline
+		500                & 8.636858940124512           & 115                  & -0.8747588054662988 \\
+		\hline
+		1000               & 32.812061071395874          & 128                  & -0.8971175868771329 \\
+		\hline
+	\end{tabular}
+	\caption{Resultados obtenidos con BFGS}
+
+\end{table}
+
+Como podemos observar, el algoritmo converge rápidamente a la
+solución óptima, pero a medida que aumenta la dimensión, el
+tiempo de ejecución aumenta considerablemente y los valores de la
+función objetivo se alejan de la solución óptima.
+
+\subsubsection{Evolución Diferencial}
+
+Con este algoritmo hicimos varias pruebas para determinar los
+parámetros que mejor se ajustaban al problema. Los parámetros
+tenidos en cuenta fueron:
+
+\begin{enumerate}
+	\item Constante de mutación: Un valor adecuado puede ayudar
+	      a obtener mejores resultados en el experimento. El aumento de
+	      la constante de mutación aumenta el radio de búsqueda, pero
+	      puede ralentizar la convergencia.
+	\item Recombinación: En la literatura esto también se conoce como la
+	      probabilidad de cruce. El aumento de este valor permite a un mayor número
+	      de mutantes progresar hacia la siguiente generación, pero a riesgo de que
+	      la población pierda estabilidad.
+\end{enumerate}
+
+Los resultados más relevantes se obtuvieron para mutation=(0.1, 0.2) y
+recombination=0.9. Cabe destacar que estos valores fueron seleccionados a
+modo de prueba y error sin ningún basamento teórico. Los resultados obtenidos fueron los
+siguientes:
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		\textbf{Dimensión} & \textbf{Tiempo en segundos} & \textbf{Iteraciones} & \textbf{Valor}      \\
+		\hline
+		5                  & 0.046331167221069336        & 7                    & -0.9999999999348439 \\
+		\hline
+		10                 & 0.08095455169677734         & 8                    & -0.9999999997806608 \\
+		\hline
+		100                & 1.7020623683929443          & 10                   & -0.9800000972648746 \\
+		\hline
+		500                & 33.51771068572998           & 11                   & -0.6801015155897399 \\
+		\hline
+		1000               & 157.38537168502808          & 12                   & -0.6247036409717763 \\
+		\hline
+	\end{tabular}
+	\caption{Evolución Diferencial}
+
+\end{table}
+
+Como podemos observar, el algoritmo converge rápidamente a la
+solución óptima para dimensiones pequeñas, sin embargo a medida
+que aumenta la dimensión, el tiempo de ejecución crece notablemente,
+y el valor de la función se aleja de la solución óptima. Notemos también
+que es bastante pequeño, incluso si aumentan las dimensiones. Al probar
+con otros parámetros llegamos en muchas ocasiones a que el tiempo de ejecución
+era demasiado extenso y el valor de la función no se llegaba a calcular
+incluso pasados 30 minutos de ejecución.
+
+\subsubsection{Comparación}
+
+Ambos métodos exhiben un buen desempeño para dimensiones pequeñas
+en el problema. Sin embargo, a medida que la dimensión aumenta,
+ambos métodos muestran limitaciones, con incrementos significativos
+en el tiempo de ejecución y una disminución en la calidad de la solución.
+En términos generales, ninguna de las dos opciones es ideal para
+dimensiones más altas en este problema específico. Sin embargo,
+el algoritmo de BFGS es más rápido y más preciso, teniendo en cuenta
+además que este método es particularmente efectivo en problemas de
+optimización no lineales con restricciones, continuos y diferenciables.
+
+
+\subsection{Problema 2: Deckkers-Aarts Function}
+
+$$
+	f(x) = 10^5x_1^2 + x_2^2 - (x_1^2 + x_2^2)^2 + 10^{-5}(x_1^2 + x_2^2)^4
+$$
+$$
+	-20 \leq x_i \leq 20
+$$
+
+Esta función es notablemente más sencilla que la anterior, por tanto
+ninguno de los algoritmos estudiados debería tener dificultades para
+dar con una solución lo suficientemente buena. Ambos alcanzan buenos
+resultados para problemas continuos, diferenciables y multimodales.
+Estos fueron los resultados obtenidos para los dos algoritmo (en
+ambos casos se tomó un vector inicial aleateorio de tamaño 2 con
+valores entre -20 y 20):
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		\textbf{Algoritmo} & \textbf{Tiempo en segundos} & \textbf{Iteraciones} & \textbf{Valor}      & \textbf{Solución}                  \\
+		\hline
+		BFGS               & 0.006909847259521484        & 16                   & -24776.51834231768  & (-8.09586187e-09, -1.49451122e+01) \\
+		\hline
+		Ev. Dif.           & 0.02954387664794922         & 17                   & -24776.518342168267 & ( 7.85018613e-07 -1.49451192e+01)  \\
+		\hline
+	\end{tabular}
+	\caption{Resultados}
+
+\end{table}
+
+En este caso se está usando el método de Evolución Diferencial con
+los parámetros que usa por defecto, ya que la simpleza de la función
+objetivo garantiza un correcto funcionamiento independientemente de ellos.
+Como podemos analizar,
+para este problema los dos algoritmos funcionan bastante bien y se
+comportan de manera muy similar, hallando ambos valores óptimos y sus
+soluciones respectivas bastante cercanos a los reales. Aunque el tiempo
+de ejecución del BFGS es ligeramente menor.
+
+
+\subsection{Problema 3: deVilliers Glasser 1 Function}
+
+$$
+	f(x) = \sum_{i=1}^{24} \left[ x_{1}x_{2}^{t_{i}}\sin(x_{3}t_{i} + x_{4}) - y_{i} \right]^2
+$$
+$$
+	-500 \leq x_i \leq 500
+$$
+
+donde $t_i = 0.1(i - 1)$ y $y_i$ = 60.137 $\times$ 1.371$t_i$ sin(3.112$t_i$ + 1.761).
+
+\subsubsection{Broyden-Fletcher-Goldfarb-Shanno}
+
+Para este problema el algoritmo BFGS resultó ser ineficiente, en algunos 
+casos arrojando soluciones muy buenas y en otros casos muy malas. Pero notemos
+como el número de iteraciones en el caso de la solución con mejor valor
+aumenta considerablemente en comparación con el resto de ejemplos en que los 
+que el valor óptimo hallado fue demasiado grande. Además, el tiempo de ejecución
+es ligeramente mayor, concluyendo que evidentemente se desarrolló un mayor 
+poder de cómputo, y se ve reflejado en un mejor resultado.
+
+\begin{table}[ht]
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{Valor óptimo} & \textbf{Iteraciones} & \textbf{Tiempo} & \textbf{Solución}                                                 \\
+			\hline
+			8938186.398241216     & 4                    & 0.0130          & (263.4371543, -2.47150059, -218.9373319, -114.4413178)            \\
+			3088918.7036044635    & 6                    & 0.0476          & (9.75595884e+02, -3.46891201e-01, 4.08131006e+02, 1.89508708e+02) \\
+			5.219116160043043e-11 & 165                  & 0.1513          & (60.13699709, -1.37100004, -122.55170615, -343.8141919)           \\
+			1256215231143770.5    & 4                    & 0.0225          & (-276.96283879, -277.61531618, 60.65269373, 328.31051919)         \\
+			\hline
+		\end{tabular}
+		\caption{Algoritmo BFGS}
+
+	\end{center}
+\end{table}
+
+\subsubsection{Evolución Diferencial}
+
+Por otro lado el algoritmo Evolución Diferencial siempre nos arrojó buenos 
+resultados pero en peores tiempos que el algoritmo anterior. No experimentamos
+con variaciones de parámetros para este problema ya que desde el principio 
+nos arrojó valores cercanos a los deseados.
+
+\newpage
+
+\begin{table}[ht]
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{Valor óptimo}  & \textbf{Iteraciones} & \textbf{Tiempo} & \textbf{Solución}   \\
+			\hline
+			3.545433417686883e-23  & 614                  & 5.171           &  (-60.137, 1.371, -65.94385307, -89.7255943)   \\
+			4.03404060951757e-23   & 640                  & 5.225           &  (-60.137, 1.371, 59.71985307, 174.1681886)   \\
+			1.6804397360096499e-22 & 740                  & 5.786           &  (60.137, 1.371, -128.77570614, -237.38044902) \\
+			2.118599241397017e-23  & 652                  & 5.101           &  (60.137 ,-1.371, -59.71985307, 498.13263927)  \\
+			3.1411605053341156e-23 & 496                  & 3.934           &  (60.137 ,-1.371, -373.87911843, -406.64604497)\\
+			\hline
+		\end{tabular}
+		\caption{Algoritmo Evolución Diferencial}
+	\end{center}
+\end{table}
+
+\subsubsection{Comparación}
+
+Un resultado obvio luego del análisis es la notable diferencia en el número de 
+iteraciones que realiza el algoritmo Evolución Diferencial, lo cual por 
+supuesto no implica un mejor desempeño del algoritmo, pero en este caso es así. 
+El algoritmo BFGS puede ser más eficiente que el algoritmo Evolución 
+Diferencial en problemas con una única solución local bien definida. Sin 
+embargo, en problemas con múltiples mínimos locales, el algoritmo Evolución 
+Diferencial puede ser una mejor opción.
+
+
+\section{Conclusiones}
+
+
+En la evaluación de los algoritmos Broyden-Fletcher-Goldfarb-Shanno (BFGS) y 
+Evolución Diferencial en los tres problemas de optimización, se observaron 
+tendencias significativas. En el problema 1 (Deb 3 Function), BFGS demostró 
+eficacia para dimensiones bajas, pero su rendimiento disminuyó en dimensiones 
+más altas.De forma similar la Evolución Diferencial mostró buenos resultados 
+para dimensiones pequeñas, aunque su eficiencia disminuyó significativamente con la 
+dimensionalidad. En el problema 2 (Deckkers-Aarts Function), ambos algoritmos 
+tuvieron un desempeño sólido, con BFGS ligeramente más rápido. Sin embargo, 
+en el problema 3 (deVilliers Glasser 1 Function), BFGS exhibió resultados 
+variables, mientras que la Evolución Diferencial proporcionó soluciones más 
+consistentes, a pesar de requerir más tiempo de ejecución. En general, la 
+elección entre estos algoritmos debe basarse en las características 
+específicas del problema y los requisitos de eficiencia computacional. Si el 
+lector quisiera hacer pruebas más exhaustivas, aquí está el 
+\href{https://github.com/alexsierra45/optimization-project}{repositorio de Github}
+con las implementaciones de cada una de las funciones y su respectiva 
+aplicación con cada uno de los métodos.
+
+
+\end{document}
